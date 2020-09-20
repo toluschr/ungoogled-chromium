@@ -27,7 +27,7 @@
  #include "ui/accessibility/accessibility_features.h"
  #include "ui/accessibility/accessibility_switches.h"
  #include "ui/base/ui_base_features.h"
-@@ -2053,6 +2054,14 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2056,6 +2057,14 @@ const FeatureEntry kFeatureEntries[] = {
       "Set internal PDF plugin name",
       "Sets the internal PDF viewer plugin name. Useful for sites that probe JS API navigator.plugins",
       kOsDesktop, MULTI_VALUE_TYPE(kPDFPluginNameChoices)},
