@@ -1,0 +1,13 @@
+diff --git a/components/dom_distiller/core/css/distilledpage_desktop.css b/components/dom_distiller/core/css/distilledpage_desktop.css
+index f72b3f7..a03ba21 100644
+--- a/components/dom_distiller/core/css/distilledpage_desktop.css
++++ b/components/dom_distiller/core/css/distilledpage_desktop.css
+@@ -37,7 +37,7 @@ fieldset {
+   margin-bottom: 1em;
+   max-width: 100%;
+   padding: 0 1em;
+-  width: 35em;
++  width: 60em;
+ }
+ 
+ #settings-container {
