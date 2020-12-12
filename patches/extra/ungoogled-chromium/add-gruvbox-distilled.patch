@@ -1,0 +1,300 @@
+--- a/components/dom_distiller/core/css/distilledpage.css
++++ b/components/dom_distiller/core/css/distilledpage.css
+@@ -20,6 +20,16 @@
+   --google-purple-700: 132, 48, 206;
+   --google-yellow-50: 254, 247, 224;
+   --google-yellow-100: 254, 239, 195;
++
++  --gruv-bg0: 40, 40, 40;
++  --gruv-blue1: 131, 165, 152;
++  --gruv-purple1: 211, 134, 155;
++  --gruv-fg1: 235, 219, 178;
++  --gruv-bg1: 60, 56, 54;
++  --gruv-bg2: 80, 73, 69;
++  --gruv-bg3: 102, 92, 84;
++  --gruv-gray1: 146, 131, 116;
++  --gruv-fg4: 168, 153, 132;
+ }
+ 
+ *,
+@@ -116,7 +126,7 @@ body {
+   transition-timing-function: ease;
+ }
+ 
+-/* Classes for light, dark and sepia themes.
++/* Classes for light, sepia, gruv and dark themes.
+  * Must agree with classes returned by useTheme() in dom_distiller_viewer.js
+  * and with CSS class constants in viewer.cc */
+ 
+@@ -125,16 +135,21 @@ body {
+   color: rgb(var(--google-grey-900));
+ }
+ 
+-.dark {
+-  background-color: rgb(var(--google-grey-900));
+-  color: #FFF;
+-}
+-
+ .sepia {
+   background-color: rgb(var(--google-yellow-50));
+   color: rgb(var(--google-brown-900));
+ }
+ 
++.gruv {
++  background-color: rgb(var(--gruv-bg0));
++  color: rgb(var(--gruv-fg1));
++}
++
++.dark {
++  background-color: rgb(var(--google-grey-900));
++  color: #FFF;
++}
++
+ .light a:link {
+   color: rgb(var(--google-blue-600));
+ }
+@@ -143,6 +158,10 @@ body {
+   color: rgb(var(--google-blue-700));
+ }
+ 
++.gruv a:link {
++  color: rgb(var(--gruv-blue1));
++}
++
+ .dark a:link {
+   color: rgb(var(--google-blue-300));
+ }
+@@ -155,6 +174,10 @@ body {
+   color: rgb(var(--google-purple-700));
+ }
+ 
++.gruv a:visited {
++  color: rgb(var(--gruv-purple1));
++}
++
+ .dark a:visited {
+   color: rgb(var(--google-purple-300));
+ }
+@@ -171,6 +194,12 @@ body {
+   border-color: rgba(var(--google-brown-900), 0.5);
+ }
+ 
++.gruv code,
++.gruv pre {
++  background-color: rgb(var(--gruv-bg2));
++  border-color: rgba(var(--gruv-gray1), 0.5);
++}
++
+ .dark code,
+ .dark pre {
+   background-color: #000;
+@@ -195,6 +224,15 @@ body {
+   border-inline-start: 1px solid rgb(147, 125, 102);
+ }
+ 
++.gruv tbody tr:nth-child(odd) {
++  background-color: rgb(var(--gruv-bg1));
++}
++
++.gruv th,
++.gruv td {
++  border-inline-start: 1px solid rgb(var(--gruv-fg4));
++}
++
+ .dark tbody tr:nth-child(odd) {
+   background-color: #333;
+ }
+--- a/components/dom_distiller/core/css/distilledpage_desktop.css
++++ b/components/dom_distiller/core/css/distilledpage_desktop.css
+@@ -94,7 +94,7 @@ fieldset {
+   padding: 16px;
+   position: fixed;
+   top: 0;
+-  width: 320px;
++  width: 420px;
+ 
+   /* The z-index is set so that any 'positioned' elements in the article text
+    * (e.g. footnotes) are rendered below the dialog. */
+@@ -183,7 +183,7 @@ select#font-family-selection:focus {
+ #theme-selection ul {
+   column-gap: 16px;
+   display: grid;
+-  grid-template-columns: 1fr 1fr 1fr;
++  grid-template-columns: 1fr 1fr 1fr 1fr;
+   list-style-type: none;
+   margin-inline-start: 16px;
+ }
+--- a/components/dom_distiller/core/html/dom_distiller_viewer.html
++++ b/components/dom_distiller/core/html/dom_distiller_viewer.html
+@@ -57,6 +57,11 @@ found in the LICENSE file.
+                     <div class="checkmark"><i class="material-icons" aria-hidden="true">&#xE86c</i></div>
+                   </li>
+                   <li class="theme-option">
++                    <input type="radio" name="theme" value="gruv"
++                       aria-label="$i18n{gruv}" id="theme-option-gruv" class="gruv">
++                    <div class="checkmark"><i class="material-icons" aria-hidden="true">&#xE86c</i></div>
++                  </li>
++                  <li class="theme-option">
+                     <input type="radio" name="theme" value="dark"
+                        aria-label="$i18n{dark}" id="theme-option-dark" class="dark">
+                     <div class="checkmark"><i class="material-icons" aria-hidden="true">&#xE86c</i></div>
+--- a/components/dom_distiller/core/html/preview.html
++++ b/components/dom_distiller/core/html/preview.html
+@@ -26,8 +26,9 @@ found in the LICENSE file.
+     Theme:
+     <select id="selectTheme" onchange="useTheme(this.value)">
+       <option value="light" selected="selected">light</option>
+-      <option value="dark">dark</option>
+       <option value="sepia">sepia</option>
++      <option value="gruv">gruv</option>
++      <option value="dark">dark</option>
+     </select>
+     <br/>
+     Lead image:
+--- a/components/dom_distiller/core/javascript/dom_distiller_viewer.js
++++ b/components/dom_distiller/core/javascript/dom_distiller_viewer.js
+@@ -69,7 +69,7 @@ function setTextDirection(direction) {
+ }
+ 
+ // These classes must agree with the font classes in distilledpage.css.
+-const themeClasses = ['light', 'dark', 'sepia'];
++const themeClasses = ['light', 'sepia', 'gruv', 'dark'];
+ const fontFamilyClasses = ['sans-serif', 'serif', 'monospace'];
+ 
+ // Get the currently applied appearance setting.
+@@ -89,12 +89,14 @@ function useFontFamily(fontFamily) {
+ 
+ function updateToolbarColor(theme) {
+   let toolbarColor;
+-  if (theme === 'sepia') {
++  if (theme === 'light') {
++    toolbarColor = '#F5F5F5';
++  } else if (theme === 'sepia') {
+     toolbarColor = '#BF9A73';
+-  } else if (theme === 'dark') {
+-    toolbarColor = '#1A1A1A';
++  } else if (theme === 'gruv') {
++    toolbarColor = '#282828';
+   } else {
+-    toolbarColor = '#F5F5F5';
++    toolbarColor = '#1A1A1A';
+   }
+   $('theme-color').content = toolbarColor;
+ }
+--- a/components/dom_distiller/core/mojom/distilled_page_prefs.mojom
++++ b/components/dom_distiller/core/mojom/distilled_page_prefs.mojom
+@@ -6,8 +6,9 @@ module dom_distiller.mojom;
+ 
+ enum Theme {
+   kLight = 0,
+-  kDark = 1,
+-  kSepia = 2,
++  kSepia = 1,
++  kGruv = 2,
++  kDark = 3,
+ };
+ 
+ enum FontFamily {
+--- a/components/dom_distiller/core/viewer.cc
++++ b/components/dom_distiller/core/viewer.cc
+@@ -36,14 +36,16 @@ namespace viewer {
+ namespace {
+ 
+ // JS Themes. Must agree with useTheme() in dom_distiller_viewer.js.
+-const char kDarkJsTheme[] = "dark";
+ const char kLightJsTheme[] = "light";
+ const char kSepiaJsTheme[] = "sepia";
++const char kGruvJsTheme[] = "gruv";
++const char kDarkJsTheme[] = "dark";
+ 
+ // CSS Theme classes.  Must agree with classes in distilledpage.css.
+-const char kDarkCssClass[] = "dark";
+ const char kLightCssClass[] = "light";
+ const char kSepiaCssClass[] = "sepia";
++const char kGruvCssClass[] = "gruv";
++const char kDarkCssClass[] = "dark";
+ 
+ // JS FontFamilies. Must agree with useFontFamily() in dom_distiller_viewer.js.
+ const char kSerifJsFontFamily[] = "serif";
+@@ -66,20 +68,24 @@ std::string GetPlatformSpecificCss() {
+ 
+ // Maps themes to JS themes.
+ const std::string GetJsTheme(mojom::Theme theme) {
+-  if (theme == mojom::Theme::kDark)
+-    return kDarkJsTheme;
++  if (theme == mojom::Theme::kLight)
++    return kLightJsTheme;
+   if (theme == mojom::Theme::kSepia)
+     return kSepiaJsTheme;
+-  return kLightJsTheme;
++  if (theme == mojom::Theme::kGruv)
++    return kGruvJsTheme;
++  return kDarkJsTheme;
+ }
+ 
+ // Maps themes to CSS classes.
+ const std::string GetThemeCssClass(mojom::Theme theme) {
+-  if (theme == mojom::Theme::kDark)
+-    return kDarkCssClass;
++  if (theme == mojom::Theme::kLight)
++    return kLightCssClass;
+   if (theme == mojom::Theme::kSepia)
+     return kSepiaCssClass;
+-  return kLightCssClass;
++  if (theme == mojom::Theme::kGruv)
++    return kGruvCssClass;
++  return kDarkCssClass;
+ }
+ 
+ // Maps font families to JS font families.
+@@ -136,6 +142,8 @@ std::string ReplaceHtmlTemplateValues(co
+       l10n_util::GetStringUTF8(IDS_DOM_DISTILLER_VIEWER_PAGE_COLOR_LIGHT);
+   i18n_replacements["sepia"] =
+       l10n_util::GetStringUTF8(IDS_DOM_DISTILLER_VIEWER_PAGE_COLOR_SEPIA);
++  i18n_replacements["gruv"] =
++      l10n_util::GetStringUTF8(IDS_DOM_DISTILLER_VIEWER_PAGE_COLOR_GRUV);
+   i18n_replacements["dark"] =
+       l10n_util::GetStringUTF8(IDS_DOM_DISTILLER_VIEWER_PAGE_COLOR_DARK);
+   i18n_replacements["fontSize"] =
+--- a/components/dom_distiller/core/viewer_unittest.cc
++++ b/components/dom_distiller/core/viewer_unittest.cc
+@@ -121,17 +121,23 @@ DistillerUIHandle* TestDomDistillerServi
+ }
+ 
+ TEST_F(DomDistillerViewerTest, TestGetDistilledPageThemeJsOutput) {
+-  std::string kDarkJs = "useTheme('dark');";
+-  std::string kSepiaJs = "useTheme('sepia');";
+   std::string kLightJs = "useTheme('light');";
+-  EXPECT_EQ(
+-      kDarkJs.compare(viewer::GetDistilledPageThemeJs(mojom::Theme::kDark)), 0);
++  std::string kSepiaJs = "useTheme('sepia');";
++  std::string kGruvJs = "useTheme('gruv');";
++  std::string kDarkJs = "useTheme('dark');";
++
+   EXPECT_EQ(
+       kLightJs.compare(viewer::GetDistilledPageThemeJs(mojom::Theme::kLight)),
+       0);
+   EXPECT_EQ(
+       kSepiaJs.compare(viewer::GetDistilledPageThemeJs(mojom::Theme::kSepia)),
+       0);
++  EXPECT_EQ(
++      kSepiaJs.compare(viewer::GetDistilledPageThemeJd(mojom::Theme::kGruv)),
++      0);
++  EXPECT_EQ(
++      kDarkJs.compare(viewer::GetDistilledPageThemeJs(mojom::Theme::kDark)),
++      0);
+ }
+ 
+ TEST_F(DomDistillerViewerTest, TestGetDistilledPageFontFamilyJsOutput) {
+--- a/components/dom_distiller_strings.grdp
++++ b/components/dom_distiller_strings.grdp
+@@ -67,6 +67,9 @@
+   <message name="IDS_DOM_DISTILLER_VIEWER_PAGE_COLOR_SEPIA" desc="The description for the option to make the page color sepia (a shade of brown) in Reader Mode.">
+     Sepia
+   </message>
++  <message name="IDS_DOM_DISTILLER_VIEWER_PAGE_COLOR_GRUV" desc="The description for the option to make the page color gruv in Reader Mode.">
++    Gruv
++  </message>
+   <message name="IDS_DOM_DISTILLER_VIEWER_PAGE_COLOR_DARK" desc="The description for the option to make the page color dark in Reader Mode.">
+     Dark
+   </message>
