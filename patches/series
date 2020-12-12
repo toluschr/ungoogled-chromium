@@ -91,4 +91,5 @@ extra/bromite/flag-max-connections-per-host.patch
 extra/bromite/flag-fingerprinting-canvas-image-data-noise.patch
 
 extra/toluschr/improve-distilled-page.patch
+extra/toluschr/fix-distilled-icons.patch
 extra/toluschr/distilled-gruvbox.patch
